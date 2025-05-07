@@ -1,0 +1,45 @@
+{
+  "name": "project_status_board",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "test": "cross-env NODE_ENV=test jest",
+    "start": "cross-env NODE_ENV=production node dist/server.js",
+    "build": "tsc -p .",
+    "release": "cross-env NODE_ENV=production nodemon --legacy-watch --watch \"src/**/*.ts\" --exec \"ts-node\" src/server.ts",
+    "dev": "cross-env NODE_ENV=development nodemon --legacy-watch --watch \"src/**/*.ts\" --exec \"ts-node\" src/server.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "connect-redis": "^8.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express-session": "^1.18.1",
+    "ioredis": "^5.6.0",
+    "pg": "^8.14.1",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1",
+    "typescript": "^5.8.2",
+    "ws": "^8.18.1"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.1",
+    "@types/express-session": "^1.18.1",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.13.10",
+    "@types/pg": "^8.11.11",
+    "@types/supertest": "^6.0.2",
+    "@types/ws": "^8.18.1",
+    "cross-env": "^7.0.3",
+    "express": "^4.21.2",
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.10",
+    "supertest": "^7.1.0",
+    "ts-jest": "^29.2.6",
+    "ts-node": "^10.9.2"
+  }
+}

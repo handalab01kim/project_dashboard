@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src", // 컴파일 루트
+    "baseUrl": "src", // import 루트
+    "paths": {
+      "@domain/*": ["./domain/*"],
+      "@middleware/*": ["./middleware/*"],
+      "@types/*": ["./types/*"],
+      "@util/*": ["./util/*"],
+      "@config/*": ["./config/*"]
+    },
+    "target": "es2016", 
+    "module": "commonjs",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "typeRoots": [
+      "./@types",
+      "./node_modules/@types"
+    ]
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "__tests__"]
+}
