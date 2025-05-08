@@ -9,7 +9,7 @@ async function getTasks():Promise<Task[]>{
         const result = await pool.query(`
             select 
                 t.id,
-                t.task_title,
+                t.name,
                 t.step,
                 t.assignee,
                 --t.project_id,
