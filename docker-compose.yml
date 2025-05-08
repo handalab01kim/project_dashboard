@@ -1,8 +1,5 @@
 services:
   node:
-    build:
-      context: ./node
-      dockerfile: Dockerfile
     image: projects_node
     container_name: projects_node
     restart: unless-stopped
@@ -14,16 +11,13 @@ services:
       POSTGRES_HOST: postgres
       POSTGRES_DB: projects
       POSTGRES_PORT: 5432
-    command: npm run dev # 주석 처리 시 production mode
+    command: npm run release
     depends_on:
     - postgres
     volumes:
     - ./node:/usr/src/app
 
   postgres:
-    build:
-      context: ./postgres
-      dockerfile: Dockerfile
     restart: unless-stopped
     image: projects_postgres
     container_name: projects_postgres
