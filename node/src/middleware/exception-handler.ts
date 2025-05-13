@@ -22,7 +22,7 @@ export default function exceptionHandler(err:HttpError, req:Request, res:Respons
     const exceptionProcess = Math.floor(statusCode/100)===4 ? "FE Server" : "BE Server";
     // systemLogService.recordSystemLog(exceptionProcess, `error: ${err.type} - ${err.message}`); // DB 로그 기록
     res.status(statusCode).json({
-        code: 1,
+        // code: 1,
         error: err.type || "Internal Server Error",
         message: err.message || "Undefined Error",
     });

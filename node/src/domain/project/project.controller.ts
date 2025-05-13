@@ -5,7 +5,11 @@ import Project from "./project";
 
 async function getProjects(req:Request, res:Response, next: NextFunction){
     try{
-        const week:number = Number(req.params.week);
+        const week:number = Number(req.query.week);
+        // if(isNaN(week)){
+        //     res.status(500).json();
+        //     return;
+        // }
         const projects:Project[] = await projectService.getProjects();
         res.status(200).json(projects);
     } catch(e){
