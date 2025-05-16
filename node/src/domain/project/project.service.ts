@@ -14,13 +14,13 @@ async function getProjects():Promise<ProjectDto[]>{
     const projects:Project[] = await projectRepository.getProjects();
     const results:ProjectDto[] = await Promise.all(
         projects.map((async p=>{
-        const client:Client = await clientRepository.getClientById(p.client_id);
-        const step:ProjectHistory = await projectHistoryRepository.getProjectStep(p.idx);
+            const client:Client = await clientRepository.getClientById(p.client_id);
+            const step:ProjectHistory = await projectHistoryRepository.getProjectStep(p.idx);
         return {
             idx: p.idx,
             name: p.name,
             client: client.name,
-            step: step.content,
+            step: step?.content ? step?.content : 'none',
             start_date: dateFormatterForDate(p.start_date),
             end_date: dateFormatterForDate(p.end_date)
         };
