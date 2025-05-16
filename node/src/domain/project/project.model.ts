@@ -1,11 +1,9 @@
 export default interface Project {
-    id: number;
+    idx: number;
     name: string;
-    client: string;
-    step: string;
-    period: string;
-    content: string;
-
+    client_id: number;
+    start_date: string;
+    end_date: string;
 }
 
 // export function channelInfoTypeCheck(obj:any):obj is ChannelInfo{ // 타입 가드

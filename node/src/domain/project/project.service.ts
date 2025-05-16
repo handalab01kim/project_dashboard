@@ -1,10 +1,32 @@
 import HttpError from "../../types/http-error";
 import projectRepository from "./project.repository";
-import Project from "./project";
+import Project from "./project.model";
+import ProjectDto from "./project.dto";
+import Client from "../client/client";
+// import clientRepository from "@domain/client/client.repository";
+import clientRepository from "../client/client.repository";
+import ProjectHistory from "../project-history/project-history";
+import projectHistoryRepository from "../project-history/project-history.repository";
+// import dateFormatter from "@util/date-formatter";
+import { dateFormatterForDate } from "../../util/date-formatter";
 
-async function getProjects():Promise<Project[]>{
+async function getProjects():Promise<ProjectDto[]>{
     const projects:Project[] = await projectRepository.getProjects();
-    return projects;
+    const results:ProjectDto[] = await Promise.all(
+        projects.map((async p=>{
+        const client:Client = await clientRepository.getClientById(p.client_id);
+        const step:ProjectHistory = await projectHistoryRepository.getProjectStep(p.idx);
+        return {
+            idx: p.idx,
+            name: p.name,
+            client: client.name,
+            step: step.content,
+            start_date: dateFormatterForDate(p.start_date),
+            end_date: dateFormatterForDate(p.end_date)
+        };
+    })));
+    
+    return results;
 }
 
 

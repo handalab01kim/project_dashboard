@@ -1,7 +1,7 @@
 import express from "express";
 import controller from "./project.controller";
 import { validate } from '../../middleware/validate';
-import { projectSchema } from '../../schemas/project.schema';
+import { projectSchema } from './project.schema';
 const router = express.Router();
 
 router.get("/project-list", validate(projectSchema, "query"), controller.getProjects);

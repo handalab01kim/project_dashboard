@@ -1,7 +1,8 @@
 import {Request, Response, NextFunction} from "express";
 import HttpError from "../../types/http-error";
 import projectService from "./project.service";
-import Project from "./project";
+import Project from "./project.model";
+import ProjectDto from "./project.dto";
 
 async function getProjects(req:Request, res:Response, next: NextFunction){
     try{
@@ -10,7 +11,7 @@ async function getProjects(req:Request, res:Response, next: NextFunction){
         //     res.status(500).json();
         //     return;
         // }
-        const projects:Project[] = await projectService.getProjects();
+        const projects:ProjectDto[] = await projectService.getProjects();
         res.status(200).json(projects);
     } catch(e){
         next(e);

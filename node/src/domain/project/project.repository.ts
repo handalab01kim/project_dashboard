@@ -1,22 +1,50 @@
 import pool from "../../config/pool";
-import Project from "./project";
+import Project from "./project.model";
 import repositoryErrorCatcher from "../../util/repository-error-catcher";
-
-
+import { QueryResult } from "pg";
 
 async function getProjects():Promise<Project[]>{
     try{
-        const result = await pool.query(`select * from project;`);
+        const result:QueryResult<Project> = await pool.query(`select * from project;`);
         return result.rows;
     } catch(e:any){
         repositoryErrorCatcher(e);
         return undefined as never;
     }
 }
-
-
+async function createProjects(project:Project):Promise<Project[]>{
+    try{
+        //insert
+        const result = await pool.query(`select * from project;`);
+        return result.rows;
+    }catch(e:any){
+        repositoryErrorCatcher(e);
+        return undefined as never;
+    }
+}
+async function updateProjects():Promise<Project[]>{
+    try{
+        const result = await pool.query(`select * from project;`);
+        return result.rows;
+    }catch(e:any){
+        repositoryErrorCatcher(e);
+        return undefined as never;
+    }
+}
+async function deleteProjects():Promise<Project[]>{
+    try{
+        const result = await pool.query(`select * from project;`);
+        return result.rows;
+    }catch(e:any){
+        repositoryErrorCatcher(e);
+        return undefined as never;
+    }
+}
 export default {
     getProjects,
+    createProjects,
+    updateProjects,
+    deleteProjects,
 };
 
 // async function getAllChannelInfos():Promise<Project[]>{
