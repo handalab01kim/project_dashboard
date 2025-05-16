@@ -12,6 +12,15 @@ async function getProjects():Promise<Project[]>{
         return undefined as never;
     }
 }
+async function getProjectId(id:number):Promise<Project>{
+    try{
+        const result:QueryResult<Project> = await pool.query(`select * from project where idx = $1;`, [id]);
+        return result.rows[0];
+    } catch(e:any){
+        repositoryErrorCatcher(e);
+        return undefined as never;
+    }
+}
 async function createProjects(project:Project):Promise<Project[]>{
     try{
         //insert
@@ -42,6 +51,7 @@ async function deleteProjects():Promise<Project[]>{
 }
 export default {
     getProjects,
+    getProjectId,
     createProjects,
     updateProjects,
     deleteProjects,

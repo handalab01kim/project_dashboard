@@ -21,7 +21,23 @@ async function getTasks():Promise<TaskDto[]>{
     }));
 }
 
+async function updateTask(task:Task):Promise<TaskDto[]>{
+    const tasks:Task[] = await taskRepository.updateTasks(task);
+    return await Promise.all(tasks.map(async (task)=>{
+        const assignees:string[] = await taskRepository.getAssignees(task.idx);
+        return {
+            idx: task.idx,
+            name: task.name,
+            step: task.step,
+            start_date: dateFormatterForDate(task.start_date),
+            end_date: dateFormatterForDate(task.end_date),
+            project: task.project,
+            assignee: assignees
+        }
+    }));
+}
 
 export default {
     getTasks,
+    updateTask,
 };
