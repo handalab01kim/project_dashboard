@@ -1,7 +1,8 @@
 export default interface Project {
     idx: number;
     name: string;
-    client_id: number;
+    client: string;
+    // client_id: number;
     start_date: string;
     end_date: string;
 }

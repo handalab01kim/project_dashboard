@@ -10,7 +10,7 @@ async function getTasks():Promise<Task[]>{
                 t.idx,
                 t.name,
                 t.step,
-                --t.assignee,
+                t.assignee,
                 --t.project_id,
                 p.name project
             from 
@@ -26,29 +26,29 @@ async function getTasks():Promise<Task[]>{
     }
 }
 
-async function getAssignees(task_id:number):Promise<string[]>{
-    try{
-        const result = await pool.query(`
-            select 
-            --     a.idx,
-                a.name
-            from 
-                task_assignee t
-            join
-                assignee a
-            on
-                t.assignee_id = a.idx
-            where
-                t.task_id = $1
-            -- order by
-            --     a.idx ASC
-                `, [task_id]);
-        return result.rows.map(q=>q.name);
-    } catch(e:any){
-        repositoryErrorCatcher(e);
-        return undefined as never;
-    }
-};
+// async function getAssignees(task_id:number):Promise<string[]>{
+//     try{
+//         const result = await pool.query(`
+//             select 
+//             --     a.idx,
+//                 a.name
+//             from 
+//                 task_assignee t
+//             join
+//                 assignee a
+//             on
+//                 t.assignee_id = a.idx
+//             where
+//                 t.task_id = $1
+//             -- order by
+//             --     a.idx ASC
+//                 `, [task_id]);
+//         return result.rows.map(q=>q.name);
+//     } catch(e:any){
+//         repositoryErrorCatcher(e);
+//         return undefined as never;
+//     }
+// };
 
 async function updateTasks(task:Task):Promise<Task[]>{
     try{
@@ -103,6 +103,6 @@ async function updateTasks(task:Task):Promise<Task[]>{
 
 export default {
     getTasks,
-    getAssignees,
+    // getAssignees,
     updateTasks,
 };

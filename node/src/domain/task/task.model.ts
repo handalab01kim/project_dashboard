@@ -5,4 +5,5 @@ export default interface Task {
     start_date: string;
     end_date: string;
     project: string | number;
+    assignee: string;
 }
