@@ -6,4 +6,5 @@ export default interface TaskDto {
     start_date: string;
     end_date: string;
     project: string | number;
+    content: string;
 }

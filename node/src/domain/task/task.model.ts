@@ -6,4 +6,5 @@ export default interface Task {
     end_date: string;
     project: string | number;
     assignee: string;
+    content: string;
 }

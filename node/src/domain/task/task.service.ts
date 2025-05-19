@@ -16,7 +16,8 @@ async function getTasks():Promise<TaskDto[]>{
             assignee: task.assignee,
             start_date: dateFormatterForDate(task.start_date),
             end_date: dateFormatterForDate(task.end_date),
-            project: task.project
+            project: task.project,
+            content: task.content,
             // assignee: assignees
         }
     }));
@@ -33,7 +34,8 @@ async function updateTask(task:Task):Promise<TaskDto[]>{
             assignee: task.assignee,
             start_date: dateFormatterForDate(task.start_date),
             end_date: dateFormatterForDate(task.end_date),
-            project: task.project
+            project: task.project,
+            content: task.content,
         }
     }));
 }

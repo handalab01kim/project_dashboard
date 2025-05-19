@@ -35,6 +35,7 @@ CREATE TABLE public."task"
     "start_date" date        NOT NULL,
     "end_date"   date        NOT NULL,
     "project_id" int         NOT NULL,
+    "content" varchar(1024),
     CONSTRAINT task_pk PRIMARY KEY (idx),
     CONSTRAINT fk_project FOREIGN KEY ("project_id") REFERENCES public.project (idx) ON DELETE CASCADE
 );

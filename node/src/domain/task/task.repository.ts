@@ -12,7 +12,8 @@ async function getTasks():Promise<Task[]>{
                 t.step,
                 t.assignee,
                 --t.project_id,
-                p.name project
+                p.name project,
+                t.content
             from 
                 task t
             join
