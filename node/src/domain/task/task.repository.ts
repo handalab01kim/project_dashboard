@@ -3,37 +3,175 @@ import Task from "./task.model";
 import repositoryErrorCatcher from "../../util/repository-error-catcher";
 import HttpError from "../../types/http-error";
 
-async function getTasks():Promise<Task[]>{
-    try{
+async function getTasks(): Promise<Task[]> {
+    try {
         const result = await pool.query(`
-            select 
-                t.idx,
-                t.name,
-                t.step,
-                t.assignee,
-                --t.project_id,
-                p.name project,
-                t.content
-            from 
-                task t
-            join
-                project p
-            on
-                t.project_id = p.idx;`);
+            select t.idx,
+                   t.name,
+                   t.step,
+                   t.assignee,
+                   --t.project_id,
+                   t.start_date,
+                   t.end_date,
+                   p.name project,
+                   t.content
+            from task t
+                     join
+                 project p
+                 on
+                     t.project_id = p.idx;`);
         return result.rows;
-    } catch(e:any){
+    } catch (e: any) {
         repositoryErrorCatcher(e);
         return undefined as never;
     }
 }
 
+async function getTask(id: number): Promise<Task> {
+    try {
+        const result = await pool.query(`
+            select t.idx,
+                   t.name,
+                   t.step,
+                   t.assignee,
+                   --t.project_id,
+                   p.name project,
+                   t.content
+            from task t
+                     join
+                 project p
+                 on
+                     t.project_id = p.idx;
+            where id =
+            $1`, [id]);
+        return result.rows[0];
+    } catch (e: any) {
+        repositoryErrorCatcher(e);
+        return undefined as never;
+    }
+}
+
+async function createTask(dto: any): Promise<Task> {
+
+    const values = [
+        dto.idx,
+        dto.name,
+        dto.step,
+        dto.assignee,
+        dto.start_date,
+        dto.end_date,
+        dto.content,
+        dto.project  // project name
+    ];
+    try {
+        const result = await pool.query(`
+            INSERT INTO task (idx,
+                              name,
+                              step,
+                              assignee,
+                              start_date,
+                              end_date,
+                              content,
+                              project_id)
+            SELECT $1,
+                   $2,
+                   $3,
+                   $4,
+                   $5,
+                   $6,
+                   $7,
+                   p.idx
+            FROM project p
+            WHERE p.name = $8`, values);
+        return result.rows[0];
+    } catch (e: any) {
+        repositoryErrorCatcher(e);
+        return undefined as never;
+    }
+}
+async function updateTask(id: number, task: Task): Promise<Task> {
+    try {
+        if (Object.keys(task).length === 0) {
+            return await getTask(id);
+        } // 변경 X
+
+        const values: any[] = [id];
+        const setClauseParts: string[] = [];
+        let idx = 2;
+
+        for (const [key, value] of Object.entries(task)) {
+            if (key === "project") {
+                // project name → project_id
+                setClauseParts.push(`project_id = (SELECT idx FROM project WHERE name = $${idx})`);
+                values.push(value);
+            } else {
+                // 일반 필드
+                setClauseParts.push(`${key} = $${idx}`);
+                values.push(value);
+            }
+            idx++;
+        }
+
+        const setClause = setClauseParts.join(", ");
+
+        const query = `
+            UPDATE task
+            SET ${setClause}
+            WHERE id = $1
+            RETURNING *
+        `;
+
+        const result = await pool.query(query, values);
+        return result.rows[0];
+
+    } catch (e: any) {
+        repositoryErrorCatcher(e);
+        return undefined as never;
+    }
+}
+
+async function deleteTask(idx: number | number[]): Promise<Task[]> {
+    try {
+        // 입력을 배열로 통일
+        const ids = Array.isArray(idx) ? idx : [idx];
+
+        if (ids.length === 0) {
+            throw new HttpError(400, "Bad Request", "no indexes received");
+        }
+
+        // IN ($1, $2, ...) 쿼리 구성
+        const inClause = ids.map((_, i) => `$${i + 1}`).join(", ");
+        const query = `
+            DELETE FROM task
+            WHERE idx IN (${inClause})
+            RETURNING *
+        `;
+
+        const result = await pool.query(query, ids);
+        return result.rows;
+    } catch (e: any) {
+        repositoryErrorCatcher(e);
+        return undefined as never;
+    }
+}
+
+
+export default {
+    getTasks,
+    createTask,
+    updateTask,
+    deleteTask,
+    // getAssignees,
+};
+
+
 // async function getAssignees(task_id:number):Promise<string[]>{
 //     try{
 //         const result = await pool.query(`
-//             select 
+//             select
 //             --     a.idx,
 //                 a.name
-//             from 
+//             from
 //                 task_assignee t
 //             join
 //                 assignee a
@@ -50,60 +188,3 @@ async function getTasks():Promise<Task[]>{
 //         return undefined as never;
 //     }
 // };
-
-async function updateTasks(task:Task):Promise<Task[]>{
-    try{
-        // if(typeof task.project==='string') throw new HttpError(500, "INTERNAL SERVER ERROR", "task.project must be number type");
-        
-        let response;
-        const {idx, ...dtos} = task;
-        console.log(idx);
-
-                const result = await pool.query(`
-            select 
-                t.idx,
-                t.name,
-                t.step,
-                --t.assignee,
-                --t.project_id,
-                p.name project
-            from 
-                task t
-            join
-                project p
-            on
-                t.project_id = p.idx;`);
-        return result.rows;
-        // if(Object.keys(dtos).length!==0){ // roi 제외 비어있지 않으면 실행
-        //     const setClause:string = Object.keys(dtos)
-        //         .map((key,idx)=>`${key}=$${idx+2}`)
-        //         .join(", ");
-        //     const query:string = `update channel_info set ${setClause} where id=$1 returning *`;
-        //     const result = await pool.query(query, [id, ...Object.values(dtos)]);
-        //     response = result.rows[0];
-        //     if (!response) return response; // id 잘못 입력 시 종료
-        // }else{
-        //     response=await getChannelInfo(id);
-        // }
-
-        // if(dto.roi){
-        //     const {rows} = await pool.query("update channel_roi set pos = $2 where id = $1 returning *", [id, dto.roi]);
-        //     const roi = rows[0].pos;
-        //     response = {...response, roi};
-        // } else{
-        //     const {rows} = await pool.query("select pos from channel_roi where id=$1", [id]);
-        //     const roi = rows[0].pos;
-        //     response = {...response,roi};
-        // }
-        return response;
-    } catch(e:any){
-        repositoryErrorCatcher(e);
-        return undefined as never;
-    }
-}
-
-export default {
-    getTasks,
-    // getAssignees,
-    updateTasks,
-};

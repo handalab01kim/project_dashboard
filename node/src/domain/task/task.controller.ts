@@ -16,9 +16,9 @@ async function getTasks(req:Request, res:Response, next: NextFunction){
 
 async function updateTask(req:Request, res:Response, next: NextFunction){
     try{
-        // const week:number = Number(req.params.week);
+        const id:number = Number(req.params.id);
         const task:Task = req.body;
-        const tasks:TaskDto[] = await taskService.updateTask(task);
+        const tasks:TaskDto = await taskService.updateTask(id, task);
         res.status(200).json(tasks);
     } catch(e){
         next(e);
