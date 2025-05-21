@@ -11,9 +11,16 @@ import fs from "fs";
 const app:Express = express();
 
 // React 빌드 serve
-app.use(express.static(path.join(__dirname, "..", "public", "build"))); 
+app.use(express.static(path.join(__dirname, "..", "public", "build")));
+
 
 // 미들웨어 & 라우터 등록
+if(config.dev){ // dev 모드
+    app.use(logger);
+    console.log("Dev-Mode");
+    // console.log("Allowed Origin: ", origins);
+} // logger을 가장 먼저 등록해야 parser 등의 라우터 에러도 일관성 있게 로깅 가능
+
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
@@ -24,11 +31,7 @@ app.use(cors({
 }));
 // app.use(redisSession);
 
-if(config.dev){ // dev 모드
-    app.use(logger);
-    console.log("Dev-Mode");
-    // console.log("Allowed Origin: ", origins);
-}
+
 // session-filter: api 개별 적용
 app.use("/api", router);
 // app.get("/", (req, res)=>{

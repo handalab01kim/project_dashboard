@@ -7,7 +7,7 @@
 // import saveImage from "../../util/save-image";
 
 // import io from "socket.io-client";
-// import ChannelInfo from "../../types/channel-info";
+// import ChannelInfo from "../../errors/channel-info";
 
 // const digitalIoSocket = io(config.digital_io_socket);
 // const inputSocket = String(config.digital_io_socket).slice(0, -6) + "input";

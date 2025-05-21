@@ -1,5 +1,5 @@
 import {Request, Response, NextFunction} from "express";
-import HttpError from "../../types/http-error";
+import HttpError from "../../errors/http-error";
 import projectService from "./project.service";
 import Project from "./project.model";
 import ProjectDto from "./project.dto";

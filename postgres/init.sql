@@ -16,7 +16,7 @@
 CREATE TABLE public."project"
 (
     "idx"        serial      NOT NULL,
-    "name"       varchar(32) NOT NULL,
+    "name"       varchar(32) NOT NULL unique,
     "client"  varchar(64),
 --     "step"       varchar(32) NOT NULL, -- latest history
     "start_date" date        NOT NULL,
@@ -35,7 +35,7 @@ CREATE TABLE public."task"
     "start_date" date        NOT NULL,
     "end_date"   date        NOT NULL,
     "project_id" int         NOT NULL,
-    "content" varchar(1024),
+    "content" text,
     CONSTRAINT task_pk PRIMARY KEY (idx),
     CONSTRAINT fk_project FOREIGN KEY ("project_id") REFERENCES public.project (idx) ON DELETE CASCADE
 );

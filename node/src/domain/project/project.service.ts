@@ -1,4 +1,4 @@
-import HttpError from "../../types/http-error";
+import HttpError from "../../errors/http-error";
 import projectRepository from "./project.repository";
 import Project from "./project.model";
 import ProjectDto from "./project.dto";

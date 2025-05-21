@@ -1,4 +1,4 @@
-import HttpError from "../types/http-error";
+import HttpError, {CommonError} from "../errors/http-error";
 
 // dateFormatter-> returns "0000-00-00"
 export default function (time:string):string{
@@ -25,7 +25,7 @@ export default function (time:string):string{
     if(/^\d{4}-\d{2}-\d{2}$/.test(time))
         return time;
 
-    throw new HttpError(500, "INTERNAL SERVER ERROR", "time-formatter: invalid time/date value - "+ time);
+    throw new HttpError(CommonError.INTERNAL_SERVER_ERROR, "time-formatter: invalid time/date value - "+ time);
 };
 
 
@@ -37,7 +37,7 @@ export function timeFormatter(dateTime: string|Date):string{
         if(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d*Z$/.test(dateTime)){
             dateTime = new Date(dateTime);
         } else {
-            throw new HttpError(500, "INTERNAL SERVER ERROR", "time-formatter: invalid time value - "+ dateTime);
+            throw new HttpError(CommonError.INTERNAL_SERVER_ERROR, "time-formatter: invalid time value - "+ dateTime);
         }
     }
 
@@ -63,7 +63,7 @@ export function timeFormatter(dateTime: string|Date):string{
 
         return dateString + timeString;
     }
-    throw new HttpError(500, "INTERNAL SERVER ERROR", "time-formatter: invalid time value - "+ dateTime);
+    throw new HttpError(CommonError.INTERNAL_SERVER_ERROR, "time-formatter: invalid time value - "+ dateTime);
 }
 
 // "0000-00-00" 형태인지 검사

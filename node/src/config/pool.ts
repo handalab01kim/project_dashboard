@@ -1,4 +1,4 @@
-import HttpError from "../types/http-error";
+import HttpError from "../errors/http-error";
 import config from "./config";
 import pg from "pg";
 

@@ -1,9 +1,9 @@
 import pool from "../../config/pool";
-import Task from "./task.model";
+import Task from "./task.dto";
 import repositoryErrorCatcher from "../../util/repository-error-catcher";
-import HttpError from "../../types/http-error";
+import HttpError, {CommonError} from "../../errors/http-error";
 
-async function getTasks(): Promise<Task[]> {
+async function getAllTasks(): Promise<Task[]> {
     try {
         const result = await pool.query(`
             select t.idx,
@@ -41,9 +41,8 @@ async function getTask(id: number): Promise<Task> {
                      join
                  project p
                  on
-                     t.project_id = p.idx;
-            where id =
-            $1`, [id]);
+                     t.project_id = p.idx
+            where t.idx = $1`, [id]);
         return result.rows[0];
     } catch (e: any) {
         repositoryErrorCatcher(e);
@@ -51,10 +50,9 @@ async function getTask(id: number): Promise<Task> {
     }
 }
 
-async function createTask(dto: any): Promise<Task> {
+async function createTask(dto: Task): Promise<Task> {
 
     const values = [
-        dto.idx,
         dto.name,
         dto.step,
         dto.assignee,
@@ -65,8 +63,7 @@ async function createTask(dto: any): Promise<Task> {
     ];
     try {
         const result = await pool.query(`
-            INSERT INTO task (idx,
-                              name,
+            INSERT INTO task (name,
                               step,
                               assignee,
                               start_date,
@@ -79,10 +76,9 @@ async function createTask(dto: any): Promise<Task> {
                    $4,
                    $5,
                    $6,
-                   $7,
                    p.idx
             FROM project p
-            WHERE p.name = $8`, values);
+            WHERE p.name = $7 returning *`, values);
         return result.rows[0];
     } catch (e: any) {
         repositoryErrorCatcher(e);
@@ -117,7 +113,7 @@ async function updateTask(id: number, task: Task): Promise<Task> {
         const query = `
             UPDATE task
             SET ${setClause}
-            WHERE id = $1
+            WHERE idx = $1
             RETURNING *
         `;
 
@@ -136,7 +132,7 @@ async function deleteTask(idx: number | number[]): Promise<Task[]> {
         const ids = Array.isArray(idx) ? idx : [idx];
 
         if (ids.length === 0) {
-            throw new HttpError(400, "Bad Request", "no indexes received");
+            throw new HttpError(CommonError.BAD_REQUEST, "no indexes received");
         }
 
         // IN ($1, $2, ...) 쿼리 구성
@@ -157,7 +153,8 @@ async function deleteTask(idx: number | number[]): Promise<Task[]> {
 
 
 export default {
-    getTasks,
+    getAllTasks,
+    getTask,
     createTask,
     updateTask,
     deleteTask,

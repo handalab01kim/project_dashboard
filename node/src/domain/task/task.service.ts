@@ -1,36 +1,48 @@
-import HttpError from "../../types/http-error";
+import HttpError, {CommonError} from "../../errors/http-error";
 import taskRepository from "./task.repository";
-import Task from "./task.model";
-import TaskDto from "./task.dto";
+import Task from "./task.dto";
 import { dateFormatterForDate } from "../../util/date-formatter";
 // import Assignee from "./assignee.model";
 
-async function getTasks():Promise<TaskDto[]>{
-    const tasks:Task[] = await taskRepository.getTasks();
-    return await Promise.all(tasks.map(async (task)=>{
-        console.log("MYDEBUG1", dateFormatterForDate(task.start_date), " ///// ", task.start_date);
-        // const assignees:string[] = await taskRepository.getAssignees(task.idx);
-        return {
-            idx: task.idx,
-            name: task.name,
-            step: task.step,
-            assignee: task.assignee,
-            start_date: dateFormatterForDate(task.start_date),
-            end_date: dateFormatterForDate(task.end_date),
-            project: task.project,
-            content: task.content,
-            // assignee: assignees
-        }
-    }));
+function makeResponse(result?:Task){
+    if(!result) throw new HttpError(CommonError.NOT_FOUND, "유효하지 않은 task")
+    return {
+        ...result,
+        start_date: dateFormatterForDate(result.start_date),
+        end_date: dateFormatterForDate(result.end_date),
+    }
 }
-// 시간 변경 -> update부터..
-async function updateTask(id:number, task:Task):Promise<TaskDto>{
-    const result:Task = await taskRepository.updateTask(id, task);
 
-    return result;
+async function getAllTasks():Promise<Task[]>{
+    const tasks:Task[] = await taskRepository.getAllTasks();
+    return await Promise.all(tasks.map(async (task)=>makeResponse(task)));
+}
+
+async function getTask(id:number):Promise<Task>{
+    const result:Task = await taskRepository.getTask(id);
+    return makeResponse(result);
+}
+
+async function updateTask(id:number, task:Task):Promise<Task>{
+    const result:Task = await taskRepository.updateTask(id, task);
+    return makeResponse(result);
+}
+
+async function createTask(task:Task):Promise<Task>{
+    const result:Task = await taskRepository.createTask(task);
+    return makeResponse(result);
+}
+
+async function deleteTask(idx: number|number[]):Promise<Task[]>{
+    const tasks:Task[] = await taskRepository.deleteTask(idx);
+    if(tasks.length === 0){throw new HttpError(CommonError.NOT_FOUND, "삭제할 task 찾지 못함");}
+    return tasks.map((task)=>makeResponse(task));
 }
 
 export default {
-    getTasks,
+    getAllTasks,
+    getTask,
+    createTask,
     updateTask,
+    deleteTask,
 };

@@ -1,10 +1,9 @@
-import HttpError from "../types/http-error";
+import HttpError, {CommonError} from "../errors/http-error";
 
-// system-log.repository를 제외한 모든 repository error catcher
 export default function repositoryErrorCatcher(e:any){
     if(e instanceof HttpError) throw e;
-    if(e.code === '22001') throw new HttpError(400, "Bad Request", "Request body contains string that exceeds the maximum allowed length");
-    const type:string = e.stack?.split('\n')[1].split("/").at(-1) || "UNDEFINED"
+    if(e.code === '22001') throw new HttpError(CommonError.BAD_REQUEST, "허용된 최대 길이를 초과하는 필드가 포함됨");
+    if(e.code === 'ECONNREFUSED' || e.code === 'ETIMEDOUT' || e.code === '28P01') throw new HttpError(CommonError.DB_CONNECTION_ERROR);
     const errorMessage = e.message ? e.message : "unknown-error"
-    throw new HttpError(500, "INTERNAL SERVER ERROR", type+" "+errorMessage);
+    throw new HttpError(CommonError.INTERNAL_SERVER_ERROR, errorMessage);
 }
