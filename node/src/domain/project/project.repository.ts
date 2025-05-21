@@ -2,6 +2,32 @@ import pool from "../../config/pool";
 import Project from "./project.model";
 import repositoryErrorCatcher from "../../util/repository-error-catcher";
 import { QueryResult } from "pg";
+import HttpError, {CommonError} from "../../errors/http-error";
+
+async function getProjectName(id: number): Promise<string> {
+    try{
+        const result:QueryResult<Project> = await pool.query(`select name from project where idx = $1;`, [id]);
+        if (result.rows.length == 0) {
+            throw new HttpError(CommonError.BAD_REQUEST, "존재하지 않는 프로젝트 이름입니다.");
+        }
+        return result.rows[0].name;
+    } catch(e:any){
+        repositoryErrorCatcher(e);
+        return undefined as never;
+    }
+}
+async function getProjectIdx(name: string): Promise<number> {
+    try{
+        const result:QueryResult<Project> = await pool.query(`select idx from project where name = $1;`, [name]);
+        if (result.rows.length == 0) {
+            throw new HttpError(CommonError.BAD_REQUEST, "존재하지 않는 프로젝트 아이디입니다.");
+        }
+        return result.rows[0].idx;
+    } catch(e:any){
+        repositoryErrorCatcher(e);
+        return undefined as never;
+    }
+}
 
 async function getProjects():Promise<Project[]>{
     try{
@@ -12,15 +38,7 @@ async function getProjects():Promise<Project[]>{
         return undefined as never;
     }
 }
-async function getProjectId(id:number):Promise<Project>{
-    try{
-        const result:QueryResult<Project> = await pool.query(`select * from project where idx = $1;`, [id]);
-        return result.rows[0];
-    } catch(e:any){
-        repositoryErrorCatcher(e);
-        return undefined as never;
-    }
-}
+
 async function createProjects(project:Project):Promise<Project[]>{
     try{
         //insert
@@ -50,8 +68,9 @@ async function deleteProjects():Promise<Project[]>{
     }
 }
 export default {
+    getProjectName,
+    getProjectIdx,
     getProjects,
-    getProjectId,
     createProjects,
     updateProjects,
     deleteProjects,
