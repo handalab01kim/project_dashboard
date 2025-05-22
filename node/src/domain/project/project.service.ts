@@ -51,7 +51,7 @@ export default {
 //     const results:ProjectDto[] = await Promise.all(
 //         projects.map((async p=>{
 //             // const client:Client = await clientRepository.getClientById(p.client_id);
-//         const step:ProjectHistory = await projectHistoryRepository.getProjectStep(p.idx);
+//         const step:ProjectHistoryDto = await projectHistoryRepository.getProjectStep(p.idx);
 //         return {
 //             idx: p.idx,
 //             name: p.name,

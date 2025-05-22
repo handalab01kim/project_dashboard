@@ -7,8 +7,8 @@ import HttpError, {CommonError} from "../../errors/http-error";
 async function getProjectName(id: number): Promise<string> {
     try{
         const result:QueryResult<Project> = await pool.query(`select name from project where idx = $1;`, [id]);
-        if (result.rows.length == 0) {
-            throw new HttpError(CommonError.BAD_REQUEST, "존재하지 않는 프로젝트 이름입니다.");
+        if (!result.rows[0] || !result.rows[0].name) {
+            throw new HttpError(CommonError.BAD_REQUEST, "유효하지 않은 프로젝트 아이디입니다.");
         }
         return result.rows[0].name;
     } catch(e:any){
@@ -19,8 +19,8 @@ async function getProjectName(id: number): Promise<string> {
 async function getProjectIdx(name: string): Promise<number> {
     try{
         const result:QueryResult<Project> = await pool.query(`select idx from project where name = $1;`, [name]);
-        if (result.rows.length == 0) {
-            throw new HttpError(CommonError.BAD_REQUEST, "존재하지 않는 프로젝트 아이디입니다.");
+        if (!result.rows[0] || !result.rows[0].idx) {
+            throw new HttpError(CommonError.BAD_REQUEST, "유효하지 않은 프로젝트 이름입니다.");
         }
         return result.rows[0].idx;
     } catch(e:any){
@@ -121,7 +121,8 @@ async function createProject(project:Project):Promise<Project>{
 async function updateProject(id:number, project: Project):Promise<Project>{
     try{
         if(Object.keys(project).length === 0){
-            return await getProject(id);
+            const {step, ...dto} = await getProject(id);
+            return dto;
         }
         const values: any[] = [id];
         const setClauseParts: string[] = [];

@@ -2,12 +2,12 @@ import { z } from "zod";
 
 // 공통 필드
 const baseTaskSchema = {
-    name: z.string().min(1, "name은 필수입니다."),
+    name: z.string().min(1, "업무 이름이 비어있습니다."),
     // step: z.union([z.string(), z.number()]),
     step: z.string(),
     assignee: z.string(),
-    start_date: z.string().refine(val => !isNaN(Date.parse(val)), { message: "유효한 날짜여야 합니다." }),
-    end_date: z.string().refine(val => !isNaN(Date.parse(val)), { message: "유효한 날짜여야 합니다." }),
+    start_date: z.string().refine(val => !isNaN(Date.parse(val)), { message: "날짜 값이 유효하지 않습니다." }),
+    end_date: z.string().refine(val => !isNaN(Date.parse(val)), { message: "날짜 값이 유효하지 않습니다." }),
     // project: z.union([z.string(), z.number()]),
     project: z.string(),
     content: z.string().optional(),

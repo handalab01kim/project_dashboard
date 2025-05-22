@@ -1,10 +1,10 @@
-export default interface ProjectDto {
-    idx: number;
-    name: string;
-    client: string;
+export default interface Project {
+    idx?: number;
+    name?: string;
+    client?: string;
     step?: string;
-    start_date: string;
-    end_date: string;
+    start_date?: string;
+    end_date?: string;
 }
 
 // export function channelInfoTypeCheck(obj:any):obj is ChannelInfo{ // 타입 가드

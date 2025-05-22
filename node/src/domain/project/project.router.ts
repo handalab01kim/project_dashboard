@@ -1,13 +1,13 @@
 import express from "express";
 import controller from "./project.controller";
 import { validate } from '../../middleware/validate';
-import { projectSchema } from './project.schema';
+import { projectIdParamSchema, updateProjectSchema, createProjectSchema } from './project.schema';
 const router = express.Router();
 
 router.get("/project-list", controller.getProjects);
-router.get("/:id", validate(projectSchema, "query"), controller.getProject);
-router.post("/", validate(projectSchema, "query"), controller.createProject);
-router.patch("/:id", validate(projectSchema, "query"), controller.updateProject);
-router.delete("/:id", validate(projectSchema, "query"), controller.deleteProject);
+router.get("/:id", validate(projectIdParamSchema, "params"), controller.getProject);
+router.post("/", validate(createProjectSchema), controller.createProject);
+router.patch("/:id", validate(projectIdParamSchema, "params"), validate(updateProjectSchema), controller.updateProject);
+router.delete("/:id", validate(projectIdParamSchema, "params"), controller.deleteProject);
 
 export default router;
