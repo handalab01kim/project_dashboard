@@ -1,28 +1,60 @@
 import {Request, Response, NextFunction} from "express";
 import HttpError from "../../errors/http-error";
 import projectService from "./project.service";
-import Project from "./project.model";
-import ProjectDto from "./project.dto";
+import Project from "./project.dto";
 
 async function getProjects(req:Request, res:Response, next: NextFunction){
     try{
-        const week:number = Number(req.query.week);
-        // if(isNaN(week)){
-        //     res.status(500).json();
-        //     return;
-        // }
-        const projects:ProjectDto[] = await projectService.getProjects();
-        res.status(200).json(projects);
+        const result:Project[] = await projectService.getProjects();
+        res.status(200).json(result);
+    } catch(e){
+        next(e);
+    }
+}
+async function getProject(req:Request, res:Response, next: NextFunction){
+    try{
+        const id:number = Number(req.params.id);
+        const result:Project = await projectService.getProject(id);
+        res.status(200).json(result);
+    } catch(e){
+        next(e);
+    }
+}
+async function createProject(req:Request, res:Response, next: NextFunction){
+    try{
+        const project:Project = req.body;
+        const result:Project = await projectService.createProject(project);
+        res.status(200).json(result);
+    } catch(e){
+        next(e);
+    }
+}
+async function updateProject(req:Request, res:Response, next: NextFunction){
+    try{
+        const id:number = Number(req.params.id);
+        const project:Project = req.body;
+        const result:Project = await projectService.updateProject(id, project);
+        res.status(200).json(result);
+    } catch(e){
+        next(e);
+    }
+}
+async function deleteProject(req:Request, res:Response, next: NextFunction){
+    try{
+        const id:number = Number(req.params.id);
+        const result:Project = await projectService.deleteProject(id);
+        res.status(200).json(result);
     } catch(e){
         next(e);
     }
 }
 
-
-
-
 export default {
     getProjects,
+    getProject,
+    createProject,
+    updateProject,
+    deleteProject,
 };
 
 

@@ -14,19 +14,12 @@ function makeResponse(result?:Task){
     };
 }
 async function changeProjectIdToName(task?:Task){
-    if(!task) throw new HttpError(CommonError.NOT_FOUND, "유효하지 않은 task");
-    let projectName;
+    if (!task?.project_id) {
+        throw new HttpError(CommonError.NOT_FOUND, "유효하지 않은 task");
+    }
 
-    if (task.project_id != null) {
-        projectName = await projectRepository.getProjectName(task.project_id);
-    } else throw new HttpError(CommonError.NOT_FOUND, "유효하지 않은 task");
-
-    const returnTask = {
-        ...task,
-        project: projectName
-    };
-
-    const { project_id, ...dto } = returnTask;
+    const project = await projectRepository.getProjectName(task.project_id);
+    const { project_id, ...dto } = { ...task, project };
     return dto;
 }
 
@@ -50,11 +43,10 @@ async function createTask(task:Task):Promise<Task>{
     return await changeProjectIdToName(makeResponse(result));
 }
 
-async function deleteTask(idx: number|number[]):Promise<Task[]>{
-    const tasks:Task[] = await taskRepository.deleteTask(idx);
-    if(tasks.length === 0){throw new HttpError(CommonError.NOT_FOUND, "삭제할 task 찾지 못함");}
-    return await Promise.all(tasks.map(async (task)=> changeProjectIdToName(makeResponse(task))));
-    // return tasks.map((task)=>makeResponse(task));
+async function deleteTask(id: number):Promise<Task>{
+    const result:Task = await taskRepository.deleteTask(id);
+    if(!result){throw new HttpError(CommonError.NOT_FOUND, "삭제할 task 찾지 못함");}
+    return await changeProjectIdToName(makeResponse(result));
 }
 
 export default {

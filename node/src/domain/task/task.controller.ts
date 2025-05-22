@@ -47,7 +47,7 @@ async function updateTask(req:Request, res:Response, next: NextFunction){
 async function deleteTask(req:Request, res:Response, next: NextFunction){
     try{
         const id:number = Number(req.params.id);
-        const tasks:Task[] = await taskService.deleteTask(id);
+        const tasks:Task = await taskService.deleteTask(id);
         res.status(200).json(tasks);
     } catch(e){
         next(e);

@@ -126,25 +126,16 @@ async function updateTask(id: number, task: Task): Promise<Task> {
     }
 }
 
-async function deleteTask(idx: number | number[]): Promise<Task[]> {
+async function deleteTask(id: number): Promise<Task> {
     try {
-        // 입력을 배열로 통일
-        const ids = Array.isArray(idx) ? idx : [idx];
-
-        if (ids.length === 0) {
-            throw new HttpError(CommonError.BAD_REQUEST, "no indexes received");
-        }
-
-        // IN ($1, $2, ...) 쿼리 구성
-        const inClause = ids.map((_, i) => `$${i + 1}`).join(", ");
         const query = `
             DELETE FROM task
-            WHERE idx IN (${inClause})
+            WHERE idx = $1
             RETURNING *
         `;
 
-        const result = await pool.query(query, ids);
-        return result.rows;
+        const result = await pool.query(query, [id]);
+        return result.rows[0];
     } catch (e: any) {
         repositoryErrorCatcher(e);
         return undefined as never;

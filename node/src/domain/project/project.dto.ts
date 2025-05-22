@@ -2,7 +2,7 @@ export default interface ProjectDto {
     idx: number;
     name: string;
     client: string;
-    step: string;
+    step?: string;
     start_date: string;
     end_date: string;
 }
