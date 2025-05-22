@@ -121,7 +121,11 @@ async function createProject(project:Project):Promise<Project>{
 async function updateProject(id:number, project: Project):Promise<Project>{
     try{
         if(Object.keys(project).length === 0){
-            const {step, ...dto} = await getProject(id);
+            const p = await getProject(id);
+            if (!p) {
+                throw new HttpError(CommonError.NOT_FOUND, "유효하지 않은 Project");
+            }
+            const { step, ...dto } = p;
             return dto;
         }
         const values: any[] = [id];
