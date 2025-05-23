@@ -3,7 +3,7 @@ import Task from "./task.dto";
 import repositoryErrorCatcher from "../../util/repository-error-catcher";
 import HttpError, {CommonError} from "../../errors/http-error";
 
-async function getAllTasks({start, end}:{start:string,end:string}): Promise<Task[]> {
+async function getTasksByWeek({start, end}:{start:string,end:string}): Promise<Task[]> {
     try {
         const result = await pool.query(`
             select t.idx,
@@ -145,7 +145,7 @@ async function deleteTask(id: number): Promise<Task> {
 
 
 export default {
-    getAllTasks,
+    getTasksByWeek,
     getTask,
     createTask,
     updateTask,
