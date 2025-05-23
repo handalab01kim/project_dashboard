@@ -3,7 +3,7 @@ import Task from "./task.dto";
 import repositoryErrorCatcher from "../../util/repository-error-catcher";
 import HttpError, {CommonError} from "../../errors/http-error";
 
-async function getAllTasks(): Promise<Task[]> {
+async function getAllTasks({start, end}:{start:string,end:string}): Promise<Task[]> {
     try {
         const result = await pool.query(`
             select t.idx,
@@ -16,10 +16,11 @@ async function getAllTasks(): Promise<Task[]> {
                    p.name project,
                    t.content
             from task t
-                     join
-                 project p
-                 on
-                     t.project_id = p.idx;`);
+            join project p
+            on t.project_id = p.idx
+            where t.end_date >=$1 AND t.start_date - interval '1 day' <$2 
+            order by t.idx
+            ;`, [start, end]);
         return result.rows;
     } catch (e: any) {
         repositoryErrorCatcher(e);

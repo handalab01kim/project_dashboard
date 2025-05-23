@@ -5,8 +5,9 @@ import Task from "./task.dto";
 
 async function getAllTasks(req:Request, res:Response, next: NextFunction){
     try{
-        // const week:number = Number(req.params.week);
-        const tasks:Task[] = await taskService.getAllTasks();
+        const week:number|undefined = req.query.week ? Number(req.query.week) : undefined; // 0 => undefined
+
+        const tasks:Task[] = await taskService.getAllTasks(week);
         res.status(200).json(tasks);
     } catch(e){
         next(e);

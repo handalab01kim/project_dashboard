@@ -9,6 +9,7 @@ services:
     ports:
     - 4010:4010
     environment:
+#      TZ: Asia/Seoul
       POSTGRES_USER: handalab
       POSTGRES_PASSWORD: handalab
       POSTGRES_HOST: postgres

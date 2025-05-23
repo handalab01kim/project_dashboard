@@ -35,5 +35,10 @@ export const taskIdParamSchema = z.object({
     id: z.coerce.number().int().nonnegative()
 });
 
+
+export const weekSchema = z.object({ // query
+    week: z.coerce.number().int().optional(), // negative O
+});
+
 export type CreateTaskDto = z.infer<typeof createTaskSchema>;
 export type UpdateTaskDto = z.infer<typeof updateTaskSchema>;

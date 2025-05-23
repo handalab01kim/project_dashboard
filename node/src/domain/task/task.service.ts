@@ -23,8 +23,38 @@ async function changeProjectIdToName(task?:Task){
     return dto;
 }
 
-async function getAllTasks():Promise<Task[]>{
-    const tasks:Task[] = await taskRepository.getAllTasks();
+function getWeekRange(week = 0) {
+    const today = new Date();
+    const now = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const dayOfWeek = now.getDay(); // 요일 0~7
+
+    const startDate = new Date(now);
+    startDate.setDate(now.getDate() - dayOfWeek + 7 * week);
+
+    const endDate = new Date(startDate);
+    endDate.setDate(startDate.getDate() + 6);
+
+    return {
+        start: formatDate(startDate),
+        end: formatDate(endDate),
+    };
+}
+// function formatDate(date:any) { // -> ISO 그대로 출력
+//     return date.toISOString(); // 'YYYY-MM-DD'
+// } // toString() 도 가능은 함
+function formatDate(date: Date): string { // -> timezone 에 맞춰 출력
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+
+
+async function getAllTasks(week: number | undefined):Promise<Task[]>{
+    const period:{start:string, end:string} = getWeekRange(week);
+    // console.log(period);
+    const tasks:Task[] = await taskRepository.getAllTasks(period);
     return await Promise.all(tasks.map(async (task)=>makeResponse(task)));
 }
 

@@ -92,8 +92,11 @@ insert into project(name, client, start_date, end_date)
 values ('창원 SMVS 6CH', 'NSK', '2025.02.11','2025.09.20'),
        ('오물란 검사기', 'EGGTEC', '2025.02.11','2025.09.20');
 insert into task(name, step, assignee, start_date, end_date, project_id)
-values ('카메라 셋업 및 학습 영상 확보', '완료', '조성현', '2025.02.11','2025.09.20', 1),
-       ('카메라 셋업 및 학습 영상 확보', '이슈 대응 중', '조성현', '2025.02.11','2025.09.20', 1);
+values ('카메라 셋업 및 학습 영상 확보', '완료', '조성현', '2025.05.17','2025.05.27', 1),
+       ('카메라 셋업 및 학습 영상 확보2', '이슈 대응 중', '조성현', '2025.05.17','2025.05.18', 1),
+       ('카메라 셋업 및 학습 영상 확보3', '진행중', '조성현', '2025.05.24','2025.05.25', 1),
+       ('카메라 셋업 및 학습 영상 확보4', '진행중', '조성현', '2025.05.25','2025.05.25', 1),
+       ('카메라 셋업 및 학습 영상 확보5', '진행중', '조성현', '2025.05.01','2025.05.30', 1);
 -- insert into task_assignee(task_id, assignee_id) values(1,1), (2,4);
 insert into project_history(project_id, content) values(1, '발주'), (2, '발주');
 -- insert into project_status(sales, is_finished, project_id) values
