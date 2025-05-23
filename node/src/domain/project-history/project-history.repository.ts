@@ -18,11 +18,11 @@ async function getProjectHistory(project: string): Promise<ProjectHistory[]> {
 
 async function createProjectHistory(project: string, content: string): Promise<ProjectHistory> {
     const sql = `
-        with p as (select idx from project where name = $1)
-             insert
-        into project_history(project_id, content)
-        values ((SELECT idx FROM p), $2)
-            returning *`;
+        insert into project_history(project_id, content)
+        select idx, $2
+        from project
+        where name = $1 returning *;
+    `;
     const values = [project, content];
     try {
         const result = await pool.query(sql, values);
