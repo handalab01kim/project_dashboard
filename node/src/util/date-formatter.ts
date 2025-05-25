@@ -73,9 +73,7 @@ export function isDate(date:string){
 
 export function dateFormatterForDate(date:any){
     return new Date(date)
-        .toLocaleDateString('ko-KR', { 
-            // timeZone: 'Asia/Seoul' // DB 서버 측 timeZone이 이미 Asia/Seoul, 옵션 사용 시 시간 다시 바뀜
-        })
+        .toLocaleDateString('ko-KR', {})
         .split('.')
         .map(num => num.trim().padStart(2, '0'))
         .slice(0, -1)

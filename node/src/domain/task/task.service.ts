@@ -122,7 +122,7 @@ async function getTasksByMothAndWeek(year?: number, month?: number):Promise<{wee
     return results.map((tasks, index)=>{
         return {
             week: index+1,
-            data: tasks
+            data: tasks.map(task=>makeResponse(task)),
         };
     })
 }
