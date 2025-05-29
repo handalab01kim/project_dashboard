@@ -22,22 +22,3 @@ export const validate = (schema: ZodSchema<any>, target: "body" | "params" | "qu
     req[target] = result.data;
     next();
 };
-
-// export const validateCombined = (schema: ZodSchema<any>) =>
-//   (req: Request, res: Response, next: NextFunction) => {
-//     const combined = { query: req.query, body: req.body };
-//     const result = schema.safeParse(combined);
-//     if (!result.success) {
-//       return next(new HttpError(400, "Bad Request", JSON.stringify(result.error.issues)));
-//     }
-//     req.query = result.data.query;
-//     req.body = result.data.body;
-//     next();
-//   };
-
-/////
-
-// const combinedSchema = z.object({
-//   query: querySchema,
-//   body: bodySchema,
-// });
