@@ -17,25 +17,14 @@ const config = {
     port: Number(process.env.PORT) || 4001,
     dev: isDev, // default: prod
     deepLog: isDeepLog || false,
-    
-    // redis_session_maxAge_hour: Number(process.env.SESSION_HOUR) || 24, // redis-session 만료 시간 (미사용 시간)
 
-    digital_io_socket: process.env.DIGITAL_IO_SOCKET,
-    
     user: process.env.POSTGRES_USER || "handalab",
     pswd: process.env.POSTGRES_PASSWORD || "handalab",
     host: process.env.POSTGRES_HOST || "localhost",
     db: process.env.POSTGRES_DB || "nsk",
     db_port: Number(process.env.POSTGRES_PORT) || 5432,
 
-    // redis_host: process.env.REDIS_HOST || "localhost",
-    // redis_port: Number(process.env.REDIS_PORT) || 6379,
-    // redis_pswd: process.env.REDIS_PASSWORD || '0000',
-    // redis_secret: process.env.REDIS_SECRET_KEY || "handalab_nsk_secret_key",
-
     origins: origins,
-    // rtsp_ports: rtsp_ports,
 
-    number_on_channels: 6, // 채널 개수
 };
 export default config;
