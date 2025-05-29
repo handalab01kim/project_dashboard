@@ -5,6 +5,8 @@ export default interface Project {
     step?: string;
     start_date?: string;
     end_date?: string;
+    leader?: string;
+    client_assignee?: string;
 }
 
 // export function channelInfoTypeCheck(obj:any):obj is ChannelInfo{ // 타입 가드

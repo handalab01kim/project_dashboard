@@ -106,10 +106,10 @@ async function getProject(id: number):Promise<Project>{
 
 async function createProject(project:Project):Promise<Project>{
     const sql = `
-        insert into project (name, client, start_date, end_date)
-        values ($1, $2, $3, $4) returning *;
+        insert into project (name, client, start_date, end_date, leader, client_assignee)
+        values ($1, $2, $3, $4, $5, $6) returning *;
     `;
-    const values = [project.name, project.client, project.start_date, project.end_date];
+    const values = [project.name, project.client, project.start_date, project.end_date, project.leader, project.client_assignee];
     try{
         const result = await pool.query(sql, values);
         return result.rows[0];

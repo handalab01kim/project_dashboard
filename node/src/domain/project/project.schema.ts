@@ -11,6 +11,8 @@ export const baseProjectSchema = {
   client: z.string(),
   start_date: z.string().refine(val => !isNaN(Date.parse(val)), { message: "날짜 값이 유효하지 않습니다." }),
   end_date: z.string().refine(val => !isNaN(Date.parse(val)), { message: "날짜 값이 유효하지 않습니다." }),
+  leader: z.string(),
+  client_assignee: z.string(),
 };
 
 export const createProjectSchema = z.object(baseProjectSchema);
