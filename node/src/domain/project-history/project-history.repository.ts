@@ -15,6 +15,18 @@ async function getProjectHistory(project: string): Promise<ProjectHistory[]> {
         return undefined as never;
     }
 }
+async function getProjectHistoryByProject(projectId: number): Promise<ProjectHistory[]> {
+    try {
+        const result = await pool.query(`select idx, content
+                                         from project_history
+                                         where project_id = $1
+                                         order by idx ASC;`, [projectId]);
+        return result.rows;
+    } catch (e: any) {
+        repositoryErrorCatcher(e);
+        return undefined as never;
+    }
+}
 
 async function createProjectHistory(project: string, content: string): Promise<ProjectHistory> {
     const sql = `
@@ -48,6 +60,37 @@ async function updateProjectHistory(id: number, content: string): Promise<Projec
         return undefined as never;
     }
 }
+async function updateProjectHistories(projectId: number, histories: ProjectHistory[]): Promise<ProjectHistory[]> {
+    const valuesClause = histories.map((history, i)=>`($${i*3+1}, $${i*3+2}, $${i*3+3})`).join(",");
+    // const values = histories.flatMap(history=>Object.values(history));
+    const values = histories.flatMap(Object.values);
+    const sql = `
+        insert into project_history(idx, project_id, content)
+        values ${valuesClause}
+        returning *`;
+    try {
+        const result = await pool.query(sql, values);
+        return result.rows;
+    } catch (e: any) {
+        repositoryErrorCatcher(e);
+        return undefined as never;
+    }
+}
+async function deleteProjectHistoryByProject(projectid: number): Promise<ProjectHistory[]> {
+    const sql = `
+        delete
+        from project_history
+        where project_id = $1 returning *;
+    `;
+    const values = [projectid];
+    try {
+        const result = await pool.query(sql, values);
+        return result.rows[0];
+    } catch (e: any) {
+        repositoryErrorCatcher(e);
+        return undefined as never;
+    }
+}
 
 async function deleteProjectHistory(id: number): Promise<ProjectHistory> {
     const sql = `
@@ -71,6 +114,9 @@ export default {
     createProjectHistory,
     updateProjectHistory,
     deleteProjectHistory,
+    getProjectHistoryByProject,
+    updateProjectHistories,
+    deleteProjectHistoryByProject,
     // getProjectStep,
 };
 

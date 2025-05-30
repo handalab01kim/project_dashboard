@@ -1,5 +1,5 @@
 import ProjectHistory from "../project-history/project-history.dto";
-export default interface Project {
+export default interface RequestProject {
     idx?: number;
     name?: string;
     client?: string;
@@ -8,7 +8,7 @@ export default interface Project {
     end_date?: string;
     leader?: string;
     client_assignee?: string;
-    histories?: ProjectHistory[];
+    histories?: string[];
 }
 
 // export function channelInfoTypeCheck(obj:any):obj is ChannelInfo{ // 타입 가드

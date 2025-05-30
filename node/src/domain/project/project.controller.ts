@@ -2,6 +2,7 @@ import {Request, Response, NextFunction} from "express";
 import HttpError from "../../errors/http-error";
 import projectService from "./project.service";
 import Project from "./project.dto";
+import RequestProject from "./project-request.dto";
 
 async function getProjects(req:Request, res:Response, next: NextFunction){
     try{
@@ -32,7 +33,7 @@ async function createProject(req:Request, res:Response, next: NextFunction){
 async function updateProject(req:Request, res:Response, next: NextFunction){
     try{
         const id:number = Number(req.params.id);
-        const project:Project = req.body;
+        const project:RequestProject = req.body;
         const result:Project = await projectService.updateProject(id, project);
         res.status(200).json(result);
     } catch(e){

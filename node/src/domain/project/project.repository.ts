@@ -84,16 +84,8 @@ LEFT JOIN latest_history lh ON lh.project_id = p.idx;
 async function getProject(id: number):Promise<Project>{
     const sql = `
         select 
-            project.*,
-            ph.content step
+            project.*
         from project
-        left join lateral ( 
-            select content
-            from project_history
-            where project_id = project.idx
-            order by project_history.idx DESC
-            limit 1
-            ) AS ph ON true
         where project.idx = $1;
     `;
     try{

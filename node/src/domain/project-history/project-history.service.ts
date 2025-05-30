@@ -30,10 +30,25 @@ async function deleteProjectHistory(id:number): Promise<ProjectHistory> {
     return result;
 }
 
+async function updateProjectHistories(projectId:number, histories: string[]): Promise<ProjectHistory[]> {
+    const deleted:ProjectHistory[] = await projectHistoryRepository.deleteProjectHistoryByProject(projectId);
+    if(histories.length===0){
+        return [];
+    }
+    const newHistories:ProjectHistory[] = histories.map((history, i)=>({
+        idx: i+1,
+        project_id: projectId,
+        content: history
+    }));
+    const result:ProjectHistory[] = await projectHistoryRepository.updateProjectHistories(projectId, newHistories);
+    return result;
+}
+
 
 export default {
     getProjectHistory,
     createProjectHistory,
     updateProjectHistory,
     deleteProjectHistory,
+    updateProjectHistories,
 };

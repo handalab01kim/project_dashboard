@@ -21,6 +21,8 @@ CREATE TABLE public."project"
 --     "step"       varchar(32) NOT NULL, -- latest history
     "start_date" date        NOT NULL,
     "end_date"   date        NOT NULL,
+    leader          varchar(16),
+    client_assignee varchar(32),
 --     "content"    varchar(64) NOT NULL,
     CONSTRAINT project_pk PRIMARY KEY (idx)
     -- CONSTRAINT fk_client FOREIGN KEY ("client_id") REFERENCES public.client (idx) ON DELETE SET NULL
@@ -42,9 +44,10 @@ CREATE TABLE public."task"
 
 CREATE TABLE public."project_history"
 (
-    "idx" serial NOT NULL,
+    "idx" int NOT NULL,
     "project_id" int NOT NULL,
-    "content" VARCHAR(64) NOT NULL
+    "content" VARCHAR(64) NOT NULL,
+    PRIMARY KEY ("idx", "project_id")
 );
 
 

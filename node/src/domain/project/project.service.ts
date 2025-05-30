@@ -1,7 +1,11 @@
 import HttpError, {CommonError} from "../../errors/http-error";
 import projectRepository from "./project.repository";
 import Project from "./project.dto";
+import ProjectHistory from "../project-history/project-history.dto";
 import { dateFormatterForDate } from "../../util/date-formatter";
+import projectHistoryRepository from "../project-history/project-history.repository";
+import RequestProject from "./project-request.dto";
+import projectHistoryService from "../project-history/project-history.service";
 
 function makeResponse(result?:Project){
     if(!result) throw new HttpError(CommonError.NOT_FOUND, "유효하지 않은 Project");
@@ -18,7 +22,12 @@ async function getProjects(): Promise<Project[]> {
 }
 
 async function getProject(id: number): Promise<Project> {
-    const project:Project = await projectRepository.getProject(id);
+    let project:Project = await projectRepository.getProject(id);
+    const histories:ProjectHistory[] = await projectHistoryRepository.getProjectHistoryByProject(id);
+    project = {
+        ...project,
+        histories,
+    }
     return makeResponse(project);
 }
 
@@ -27,9 +36,21 @@ async function createProject(project: Project): Promise<Project> {
     return makeResponse(result);
 }
 
-async function updateProject(id: number, project: Project): Promise<Project> {
-    const result:Project = await projectRepository.updateProject(id, project);
-    return makeResponse(result);
+async function updateProject(id: number, dto: RequestProject): Promise<Project> {
+    const {histories, ...project} = dto;
+    let projectResult:Project = await projectRepository.updateProject(id, project);
+    if(histories){
+        const results:ProjectHistory[] = await projectHistoryService.updateProjectHistories(id, histories);
+        const historyResults = results.map(h=>{ // return data에 불필요한 project_id 제거
+            const {project_id, ...history} =h;
+            return history
+        });
+        projectResult = {
+            ...projectResult,
+            histories:historyResults
+        };
+    }
+    return makeResponse(projectResult);
 }
 
 async function deleteProject(id:number): Promise<Project> {
