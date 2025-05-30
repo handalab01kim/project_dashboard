@@ -27,6 +27,18 @@ async function getProjectHistoryByProject(projectId: number): Promise<ProjectHis
         return undefined as never;
     }
 }
+async function getProjectHistories(projectId: number): Promise<ProjectHistory[]> {
+    try {
+        const result = await pool.query(`select idx, content
+                                         from project_history
+                                         where project_id = $1
+                                         order by idx ASC;`, [projectId]);
+        return result.rows;
+    } catch (e: any) {
+        repositoryErrorCatcher(e);
+        return undefined as never;
+    }
+}
 
 async function createProjectHistory(project: string, content: string): Promise<ProjectHistory> {
     const sql = `
@@ -117,6 +129,7 @@ export default {
     getProjectHistoryByProject,
     updateProjectHistories,
     deleteProjectHistoryByProject,
+    getProjectHistories,
     // getProjectStep,
 };
 

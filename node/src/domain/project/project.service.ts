@@ -39,17 +39,20 @@ async function createProject(project: Project): Promise<Project> {
 async function updateProject(id: number, dto: RequestProject): Promise<Project> {
     const {histories, ...project} = dto;
     let projectResult:Project = await projectRepository.updateProject(id, project);
+    let results:ProjectHistory[]; // projectHistory list 쿼리 결과
     if(histories){
-        const results:ProjectHistory[] = await projectHistoryService.updateProjectHistories(id, histories);
-        const historyResults = results.map(h=>{ // return data에 불필요한 project_id 제거
-            const {project_id, ...history} =h;
-            return history
-        });
-        projectResult = {
-            ...projectResult,
-            histories:historyResults
-        };
+        results = await projectHistoryService.updateProjectHistories(id, histories);
+    }else{ // 수정 X -> history 그대로 반환
+        results = await projectHistoryService.getProjectHistories(id);
     }
+    const historyResults = results.map(h=>{ // return data에 불필요한 project_id 제거
+        const {project_id, ...history} =h;
+        return history
+    });
+    projectResult = {
+        ...projectResult,
+        histories:historyResults
+    };
     return makeResponse(projectResult);
 }
 

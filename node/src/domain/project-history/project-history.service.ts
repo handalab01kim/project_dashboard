@@ -11,6 +11,10 @@ async function getProjectHistory(project:string): Promise<ProjectHistory[]> {
     }
     return result;
 }
+async function getProjectHistories(projectId:number): Promise<ProjectHistory[]> {
+    const result:ProjectHistory[] = await projectHistoryRepository.getProjectHistories(projectId);
+    return result;
+}
 
 async function createProjectHistory(project: string, content: string): Promise<ProjectHistory> {
     const result:ProjectHistory = await projectHistoryRepository.createProjectHistory(project, content);
@@ -51,4 +55,5 @@ export default {
     updateProjectHistory,
     deleteProjectHistory,
     updateProjectHistories,
+    getProjectHistories,
 };
