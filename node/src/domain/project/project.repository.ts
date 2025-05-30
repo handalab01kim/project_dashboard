@@ -42,7 +42,7 @@ async function getProjects():Promise<Project[]>{
         order by project_history.idx DESC
         limit 1
         ) AS ph ON true
-    order by project.idx desc;
+    order by project.idx asc;
     `; // project 별 최근 history => step, 개별 서브 쿼리
     try{
         const result:QueryResult<Project> = await pool.query(sql);
