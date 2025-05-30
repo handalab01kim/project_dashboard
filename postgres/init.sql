@@ -47,7 +47,8 @@ CREATE TABLE public."project_history"
     "idx" int NOT NULL,
     "project_id" int NOT NULL,
     "content" VARCHAR(64) NOT NULL,
-    PRIMARY KEY ("idx", "project_id")
+    PRIMARY KEY ("idx", "project_id"),
+    CONSTRAINT fk_project_history_project FOREIGN KEY ("project_id") REFERENCES public.project (idx) ON DELETE CASCADE
 );
 
 
