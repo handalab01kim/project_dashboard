@@ -75,6 +75,15 @@ async function deleteTask(req:Request, res:Response, next: NextFunction){
     }
 }
 
+async function getAssignees(req:Request, res:Response, next: NextFunction){
+    try{
+        const assignees:string[] = await taskService.getAssignees();
+        res.status(200).json(assignees);
+    } catch(e){
+        next(e);
+    }
+}
+
 export default {
     getTasksByWeek,
     getTasksByMothAndWeek,
@@ -82,4 +91,5 @@ export default {
     createTask,
     updateTask,
     deleteTask,
+    getAssignees,
 };

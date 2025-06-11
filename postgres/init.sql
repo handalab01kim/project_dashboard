@@ -4,12 +4,12 @@
 --     "name" varchar(32) NOT NULL,
 --     CONSTRAINT client_pk PRIMARY KEY (idx)
 -- );
--- CREATE TABLE public."assignee"
--- (
---     "idx"  serial      NOT NULL,
---     "name" varchar(16) NOT NULL,
---     CONSTRAINT assignee_pk PRIMARY KEY (idx)
--- );
+CREATE TABLE public."assignee"
+(
+    "idx"  serial      NOT NULL,
+    "name" varchar(32) NOT NULL,
+    CONSTRAINT assignee_pk PRIMARY KEY (idx)
+);
 
 
 
@@ -33,13 +33,15 @@ CREATE TABLE public."task"
     "idx"        serial      NOT NULL,
     "name"       varchar(32) NOT NULL,
     "step"       varchar(32) NOT NULL,
-    "assignee"   varchar(32) NOT NULL,
+    "assignee_id"   int NOT NULL,
     "start_date" date        NOT NULL,
     "end_date"   date        NOT NULL,
     "project_id" int         NOT NULL,
     "content" text,
     CONSTRAINT task_pk PRIMARY KEY (idx),
-    CONSTRAINT fk_project FOREIGN KEY ("project_id") REFERENCES public.project (idx) ON DELETE CASCADE
+    CONSTRAINT fk_project FOREIGN KEY ("project_id") REFERENCES public.project (idx) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT fk_task_assignee FOREIGN KEY("assignee_id") REFERENCES public.assignee(idx) ON UPDATE CASCADE
+
 );
 
 CREATE TABLE public."project_history"

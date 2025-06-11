@@ -152,6 +152,11 @@ async function deleteTask(id: number):Promise<Task>{
     return await changeProjectIdToName(makeResponse(result));
 }
 
+// GET assignee API
+async function getAssignees():Promise<string[]>{
+    return  await taskRepository.getAssignees();
+}
+
 export default {
     fetchWeeklyTasks,
     getTasksByMothAndWeek,
@@ -160,4 +165,5 @@ export default {
     createTask,
     updateTask,
     deleteTask,
+    getAssignees,
 };
