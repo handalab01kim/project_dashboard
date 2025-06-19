@@ -93,6 +93,10 @@ async function fetchWeeklyTasks(inputWeek: number | undefined):Promise<any>{
     const startInfo = getMonthAndWeekFromDate(new Date(startDate));
     const endInfo = getMonthAndWeekFromDate(new Date(endDate));
 
+    const year = startInfo.year === endInfo.year
+        ? [startInfo.year]
+        : [startInfo.year, endInfo.year];
+
     const month = startInfo.month === endInfo.month
         ? [startInfo.month]
         : [startInfo.month, endInfo.month];
@@ -104,6 +108,7 @@ async function fetchWeeklyTasks(inputWeek: number | undefined):Promise<any>{
     const taskData = await getTasksByWeek(inputWeek);
 
     return {
+        year,
         month,
         week,
         data: taskData

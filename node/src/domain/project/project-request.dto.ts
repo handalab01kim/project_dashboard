@@ -9,6 +9,8 @@ export default interface RequestProject {
     leader?: string;
     client_assignee?: string;
     histories?: string[];
+
+    color?: number;
 }
 
 // export function channelInfoTypeCheck(obj:any):obj is ChannelInfo{ // 타입 가드
