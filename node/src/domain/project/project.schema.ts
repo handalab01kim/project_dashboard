@@ -14,9 +14,13 @@ export const baseProjectSchema = {
   leader: z.string(),
   client_assignee: z.string(),
   histories: z.array(z.string()).optional(),
+  color: z.number().int().nonnegative(),
 };
 
-export const createProjectSchema = z.object(baseProjectSchema);
+export const createProjectSchema = z.object({
+  ...baseProjectSchema,
+  color: baseProjectSchema.color.optional(), // color만 optional (X)
+});
 
 export const updateProjectSchema = z.object({
   ...Object.fromEntries(
