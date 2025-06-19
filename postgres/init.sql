@@ -91,6 +91,9 @@ CREATE TABLE public."project_history"
 -- );
 
 
+insert into assignee(name) values('김도균'), ('조성현'), ('박희원'), ('김영일');
+
+
 -- dummy
 -- insert into client(name) values('EGGTEC'), ('NSK');
 -- insert into assignee(name) values('김도균'), ('김영일'), ('박희원'), ('조성현');

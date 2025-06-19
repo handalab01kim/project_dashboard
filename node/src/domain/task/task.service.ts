@@ -60,20 +60,49 @@ async function getTasksByWeek(week: number | undefined):Promise<Task[]>{
 }
 
 // 특정 날짜가 몇월, 몇주차인지 반환 {month, week}
-function getMonthAndWeekFromDate(date:any){
+// function getMonthAndWeekFromDate(date:any){
+//     const currentDate = date.getDate();
+//     const firstDay = new Date(date.setDate(1)).getDay();
+
+//     return {
+//         month: date.getMonth()+1,
+//         week:(Math.ceil((currentDate + firstDay) / 7))
+//     };
+// }
+function getMonthAndWeekFromDate(inputDate: Date) {
+    const date = new Date(inputDate); // 원본 보호
+
     const currentDate = date.getDate();
-    const firstDay = new Date(date.setDate(1)).getDay();
+    const firstOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+    const firstDay = firstOfMonth.getDay(); // 달의 첫날 요일
 
     return {
-        month: date.getMonth()+1,
-        week:(Math.ceil((currentDate + firstDay) / 7))
+        year: date.getFullYear(),
+        month: date.getMonth() + 1,
+        week: Math.ceil((currentDate + firstDay) / 7),
     };
 }
+
 // GET API []
 async function fetchWeeklyTasks(inputWeek: number | undefined):Promise<any>{
-    const {end} = getWeekRange(inputWeek);
-    const {month, week} = getMonthAndWeekFromDate(new Date(end));
+    const { start, end } = getWeekRange(inputWeek);
+
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+
+    const startInfo = getMonthAndWeekFromDate(new Date(startDate));
+    const endInfo = getMonthAndWeekFromDate(new Date(endDate));
+
+    const month = startInfo.month === endInfo.month
+        ? [startInfo.month]
+        : [startInfo.month, endInfo.month];
+
+    const week = startInfo.month === endInfo.month && startInfo.week === endInfo.week
+        ? [startInfo.week]
+        : [startInfo.week, endInfo.week];
+
     const taskData = await getTasksByWeek(inputWeek);
+
     return {
         month,
         week,
@@ -157,6 +186,81 @@ async function getAssignees():Promise<string[]>{
     return  await taskRepository.getAssignees();
 }
 
+function getDateRangeOfWeekIndex(index: number) {
+    const { start, end } = getWeekRange(index);
+    return { start: new Date(start), end: new Date(end) };
+}
+
+// GET API; 월, 주차 → week-idx (week=0: 금주)
+// async function getWeekIndexFromMonthAndWeek(year: number, month: number, week: number): Promise<number> {
+//     const today = new Date();
+//     for (let offset = -52; offset <= 52; offset++) {
+//         const { start, end } = getWeekRange(offset);
+//         const startDate = new Date(start);
+//         const endDate = new Date(end);
+
+//         const startInfo = getMonthAndWeekFromDate(startDate);
+//         const endInfo = getMonthAndWeekFromDate(endDate);
+
+//         // 해당 주가 걸치는 경우에 포함 처리
+//         const months = new Set([startInfo.month, endInfo.month]);
+//         const weeks = new Set([startInfo.week, endInfo.week]);
+
+//         if (months.has(month) && weeks.has(week)) {
+//             return offset;
+//         }
+//     }
+//     throw new HttpError(CommonError.NOT_FOUND, "해당 월/주차에 대응하는 week index를 찾을 수 없습니다.");
+// }
+async function getWeekIndexFromMonthAndWeek(
+    year: number,
+    month: number,
+    week: number
+): Promise<number> {
+    const base = new Date(); // 오늘 기준
+    let offset = 0;
+
+    const getKey = (date: Date): [number, number, number] => {
+        const { year, month, week } = getMonthAndWeekFromDate(date);
+        return [year, month, week];
+    };
+
+    const targetKey: [number, number, number] = [year, month, week];
+    const baseKey = getKey(base);
+
+    const compare = (a: [number, number, number], b: [number, number, number]) => {
+        if (a[0] !== b[0]) return a[0] - b[0]; // year
+        if (a[1] !== b[1]) return a[1] - b[1]; // month
+        return a[2] - b[2]; // week
+    };
+
+    const direction = compare(targetKey, baseKey) > 0 ? 1 : -1;
+
+    while (true) {
+        const { start, end } = getWeekRange(offset);
+        const startKey = getKey(new Date(start));
+        const endKey = getKey(new Date(end));
+
+        if (
+            compare(startKey, targetKey) === 0 ||
+            compare(endKey, targetKey) === 0
+        ) {
+            return offset;
+        }
+
+        const worstKey = direction === 1 ? startKey : endKey;
+        if (compare(worstKey, targetKey) * direction > 0) break;
+
+        offset += direction;
+    }
+
+    throw new HttpError(CommonError.NOT_FOUND, "해당 연/월/주차에 대응하는 week index를 찾을 수 없습니다.");
+}
+
+
+
+
+
 export default {
     fetchWeeklyTasks,
     getTasksByMothAndWeek,
@@ -166,4 +270,5 @@ export default {
     updateTask,
     deleteTask,
     getAssignees,
+    getWeekIndexFromMonthAndWeek,
 };

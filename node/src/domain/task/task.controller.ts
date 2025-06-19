@@ -14,6 +14,7 @@ async function getTasksByWeek(req:Request, res:Response, next: NextFunction){
     }
 }
 
+// month api
 async function getTasksByMothAndWeek(req:Request, res:Response, next: NextFunction){
     try{
         const year:number|undefined = req.params.year ? Number(req.params.year) : undefined;
@@ -84,12 +85,30 @@ async function getAssignees(req:Request, res:Response, next: NextFunction){
     }
 }
 
+async function resolveWeekIndex(req: Request, res: Response, next: NextFunction) {
+    try {
+        const { year, month, week } = req.query;
+        if (!year || !month || !week) {
+            throw new HttpError(CommonError.BAD_REQUEST_TYPE, "year, month, week 모두 필요");
+        }
+        const weekIndex = await taskService.getWeekIndexFromMonthAndWeek(
+            Number(year),
+            Number(month),
+            Number(week)
+        );
+        res.status(200).json({ week: weekIndex });
+    } catch (e) {
+        next(e);
+    }
+}
+
 export default {
     getTasksByWeek,
-    getTasksByMothAndWeek,
+    getTasksByMothAndWeek, // month api
     getTask,
     createTask,
     updateTask,
     deleteTask,
     getAssignees,
+    resolveWeekIndex,
 };
