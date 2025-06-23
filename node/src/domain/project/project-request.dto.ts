@@ -10,7 +10,7 @@ export default interface RequestProject {
     client_assignee?: string;
     histories?: string[];
 
-    color?: number;
+    // color?: number;
 }
 
 // export function channelInfoTypeCheck(obj:any):obj is ChannelInfo{ // 타입 가드

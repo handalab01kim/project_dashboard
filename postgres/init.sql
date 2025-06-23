@@ -23,7 +23,7 @@ CREATE TABLE public."project"
     "end_date"   date        NOT NULL,
     leader          varchar(16),
     client_assignee varchar(32),
-    color int default 0,
+    -- color int default 0,
 --     "content"    varchar(64) NOT NULL,
     CONSTRAINT project_pk PRIMARY KEY (idx)
     -- CONSTRAINT fk_client FOREIGN KEY ("client_id") REFERENCES public.client (idx) ON DELETE SET NULL

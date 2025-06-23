@@ -1,11 +1,5 @@
 import { z } from 'zod';
 
-// export type ChannelInfo = z.infer<typeof channelInfoSchema>;
-// export const projectSchema = z.object({
-//   week: z.coerce.number().optional().nullable(), // query / param?
-//   // week: z.number(), // body
-// });
-
 export const baseProjectSchema = {
   name: z.string().min(1, "프로젝트 이름이 비어있습니다."),
   client: z.string(),
@@ -14,13 +8,14 @@ export const baseProjectSchema = {
   leader: z.string(),
   client_assignee: z.string(),
   histories: z.array(z.string()).optional(),
-  color: z.number().int().nonnegative(),
+  // color: z.number().int().nonnegative(),
 };
 
-export const createProjectSchema = z.object({
-  ...baseProjectSchema,
-  color: baseProjectSchema.color.optional(), // color만 optional (X)
-});
+export const createProjectSchema = z.object(baseProjectSchema);
+// export const createProjectSchema = z.object({
+//   ...baseProjectSchema,
+//   color: baseProjectSchema.color.optional(), // color만 optional (X)
+// });
 
 export const updateProjectSchema = z.object({
   ...Object.fromEntries(

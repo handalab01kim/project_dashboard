@@ -9,7 +9,7 @@ export default interface Project {
     leader?: string;
     client_assignee?: string;
     histories?: ProjectHistory[];
-    color?: number;
+    // color?: number;
 }
 
 // export function channelInfoTypeCheck(obj:any):obj is ChannelInfo{ // 타입 가드
