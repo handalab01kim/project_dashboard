@@ -34,14 +34,14 @@ CREATE TABLE public."task"
     "idx"        serial      NOT NULL,
     "name"       varchar(32) NOT NULL,
     "step"       varchar(32) NOT NULL,
-    "assignee_id"   int NOT NULL,
+    -- "assignee_id"   int NOT NULL,
     "start_date" date        NOT NULL,
     "end_date"   date        NOT NULL,
     "project_id" int         NOT NULL,
     "content" text,
     CONSTRAINT task_pk PRIMARY KEY (idx),
-    CONSTRAINT fk_project FOREIGN KEY ("project_id") REFERENCES public.project (idx) ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT fk_task_assignee FOREIGN KEY("assignee_id") REFERENCES public.assignee(idx) ON UPDATE CASCADE
+    CONSTRAINT fk_project FOREIGN KEY ("project_id") REFERENCES public.project (idx) ON UPDATE CASCADE ON DELETE CASCADE
+    -- CONSTRAINT fk_task_assignee FOREIGN KEY("assignee_id") REFERENCES public.assignee(idx) ON UPDATE CASCADE
 
 );
 
@@ -82,13 +82,13 @@ CREATE TABLE public."project_history"
 --     CONSTRAINT fk_project FOREIGN KEY (project_id) REFERENCES public.project (idx) ON DELETE CASCADE,
 --     CONSTRAINT fk_client FOREIGN KEY (client_id) REFERENCES public.client (idx) ON DELETE CASCADE
 -- );
--- CREATE TABLE public."task_assignee"
--- (
---     "task_id"     int NOT NULL,
---     "assignee_id" int NOT NULL,
---     CONSTRAINT fk_task FOREIGN KEY (task_id) REFERENCES public.task (idx) ON DELETE CASCADE,
---     CONSTRAINT fk_assignee FOREIGN KEY (assignee_id) REFERENCES public.assignee (idx) ON DELETE CASCADE
--- );
+CREATE TABLE public."task_assignee"
+(
+    "task_id"     int NOT NULL,
+    "assignee_id" int NOT NULL,
+    CONSTRAINT fk_task FOREIGN KEY (task_id) REFERENCES public.task (idx) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT fk_assignee FOREIGN KEY (assignee_id) REFERENCES public.assignee (idx) ON UPDATE CASCADE ON DELETE CASCADE
+);
 
 
 insert into assignee(name) values('김도균'), ('조성현'), ('박희원'), ('김영일');
@@ -96,19 +96,21 @@ insert into assignee(name) values('김도균'), ('조성현'), ('박희원'), ('
 
 -- dummy
 -- insert into client(name) values('EGGTEC'), ('NSK');
--- insert into assignee(name) values('김도균'), ('김영일'), ('박희원'), ('조성현');
 
-insert into project(name, client, start_date, end_date)
-values ('창원 SMVS 6CH', 'NSK', '2025.02.11','2025.09.20'),
-       ('오물란 검사기', 'EGGTEC', '2025.02.11','2025.09.20');
-insert into task(name, step, assignee, start_date, end_date, project_id)
-values ('카메라 셋업 및 학습 영상 확보', '완료', '조성현', '2025.05.17','2025.05.27', 1),
-       ('카메라 셋업 및 학습 영상 확보2', '이슈 대응 중', '조성현', '2025.05.17','2025.05.18', 1),
-       ('카메라 셋업 및 학습 영상 확보3', '진행중', '조성현', '2025.05.24','2025.05.25', 1),
-       ('카메라 셋업 및 학습 영상 확보4', '진행중', '조성현', '2025.05.25','2025.05.25', 1),
-       ('카메라 셋업 및 학습 영상 확보5', '진행중', '조성현', '2025.05.01','2025.05.30', 1);
+
+-- insert into project(name, client, start_date, end_date)
+-- values ('창원 SMVS 6CH', 'NSK', '2025.02.11','2025.09.20'),
+--        ('오물란 검사기', 'EGGTEC', '2025.02.11','2025.09.20');
+-- insert into task(name, step, assignee, start_date, end_date, project_id)
+-- values ('카메라 셋업 및 학습 영상 확보', '완료', '조성현', '2025.05.17','2025.05.27', 1),
+--        ('카메라 셋업 및 학습 영상 확보2', '이슈 대응 중', '조성현', '2025.05.17','2025.05.18', 1),
+--        ('카메라 셋업 및 학습 영상 확보3', '진행중', '조성현', '2025.05.24','2025.05.25', 1),
+--        ('카메라 셋업 및 학습 영상 확보4', '진행중', '조성현', '2025.05.25','2025.05.25', 1),
+--        ('카메라 셋업 및 학습 영상 확보5', '진행중', '조성현', '2025.05.01','2025.05.30', 1);
+-- insert into project_history(project_id, content) values(1, '발주'), (2, '발주');
+
+
 -- insert into task_assignee(task_id, assignee_id) values(1,1), (2,4);
-insert into project_history(project_id, content) values(1, '발주'), (2, '발주');
 -- insert into project_status(sales, is_finished, project_id) values
 -- (1.75, false, 1),
 -- (0.8, true, 2);

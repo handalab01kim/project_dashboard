@@ -14,6 +14,15 @@ function makeResponse(result?:Task){
         end_date: dateFormatterForDate(result.end_date),
     };
 }
+async function makeResponseAssignees(task?:Task){
+    if(!task) throw new HttpError(CommonError.NOT_FOUND, "유효하지 않은 task");
+    const {assignee, ...t} = makeResponse(task);
+    const assignees:string[] = await taskRepository.getAssigneesForTask(task.idx);
+    return{
+        ...t,
+        assignee:assignees
+    }
+}
 // project; id -> name
 async function changeProjectIdToName(task?:Task){
     if (!task?.project_id) {
@@ -50,13 +59,13 @@ function formatDate(date: Date): string { // -> timezone 에 맞춰 출력
     return `${year}-${month}-${day}`;
 }
 
-
+// get list
 // 일주일 task 데이터 반환 {week=0: -> 금주, week>0: 다음~주, week<0: 지난~주}
 async function getTasksByWeek(week: number | undefined):Promise<Task[]>{
     const period:{start:string, end:string} = getWeekRange(week);
     // console.log(period);
     const tasks:Task[] = await taskRepository.getTasksByWeek(period);
-    return await Promise.all(tasks.map(async (task)=>makeResponse(task)));
+    return await Promise.all(tasks.map(async (task)=>makeResponseAssignees(task)));
 }
 
 // 특정 날짜가 몇월, 몇주차인지 반환 {month, week}
@@ -165,19 +174,20 @@ async function getTasksByMothAndWeek(year?: number, month?: number):Promise<{wee
 // GET API
 async function getTask(id:number):Promise<Task>{
     const result:Task = await taskRepository.getTask(id);
-    return makeResponse(result);
+    return makeResponseAssignees(result);
 }
 
 // PATCH API
 async function updateTask(id:number, task:Task):Promise<Task>{
     const result:Task = await taskRepository.updateTask(id, task);
-    return await changeProjectIdToName(makeResponse(result));
+    return await changeProjectIdToName(await makeResponseAssignees(result));
 }
 
 // POST API
 async function createTask(task:Task):Promise<Task>{
+    await projectRepository.getProjectIdx(task.project+"");
     const result:Task = await taskRepository.createTask(task);
-    return await changeProjectIdToName(makeResponse(result));
+    return await changeProjectIdToName(await makeResponseAssignees(result));
 }
 // DELETE API
 async function deleteTask(id: number):Promise<Task>{

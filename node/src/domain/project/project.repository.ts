@@ -16,8 +16,9 @@ async function getProjectName(id: number): Promise<string> {
         return undefined as never;
     }
 }
-async function getProjectIdx(name: string): Promise<number> {
+async function getProjectIdx(name?: string): Promise<number> {
     try{
+        if(!name) throw new HttpError(CommonError.BAD_REQUEST, "유효하지 않은 프로젝트 이름입니다.");
         const result:QueryResult<Project> = await pool.query(`select idx from project where name = $1;`, [name]);
         if (!result.rows[0] || !result.rows[0].idx) {
             throw new HttpError(CommonError.BAD_REQUEST, "유효하지 않은 프로젝트 이름입니다.");

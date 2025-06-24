@@ -5,7 +5,7 @@ const baseTaskSchema = {
     name: z.string().min(1, "업무 이름이 비어있습니다."),
     // step: z.union([z.string(), z.number()]),
     step: z.string(),
-    assignee: z.string(),
+    assignee: z.array(z.string()),
     start_date: z.string().refine(val => !isNaN(Date.parse(val)), { message: "날짜 값이 유효하지 않습니다." }),
     end_date: z.string().refine(val => !isNaN(Date.parse(val)), { message: "날짜 값이 유효하지 않습니다." }),
     // project: z.union([z.string(), z.number()]),

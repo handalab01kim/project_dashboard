@@ -9,13 +9,13 @@ async function getTasksByWeek({start, end}:{start:string,end:string}): Promise<T
             select t.idx,
                    t.name,
                    t.step,
-                   t.assignee,
+                   --t.assignee,
                    --t.project_id,
                    t.start_date,
                    t.end_date,
                    p.name project,
                    t.content
-            from (select task.*, assignee.name assignee from task join assignee on task.assignee_id = assignee.idx) t 
+            from task t 
             join project p
             on t.project_id = p.idx
             where t.end_date >=$1 AND t.start_date - interval '1 day' <$2 
@@ -34,11 +34,11 @@ async function getTask(id: number): Promise<Task> {
             select t.idx,
                    t.name,
                    t.step,
-                   t.assignee,
+                   --t.assignee,
                    --t.project_id,
                    p.name project,
                    t.content
-            from (select task.*, assignee.name assignee from task join assignee on task.assignee_id = assignee.idx) t 
+            from task t 
                      join
                  project p
                  on
@@ -51,53 +51,77 @@ async function getTask(id: number): Promise<Task> {
     }
 }
 
-async function getValidAssigneeIdx(assigneeName?:string): Promise<string>{
+async function getValidAssigneeIdx(assigneeName?:string[]): Promise<number[]>{
     if(!assigneeName) throw new HttpError(CommonError.BAD_REQUEST, "Invalid assignee (undefined)");
-    const assignee_result = await pool.query(`select a.idx from assignee a where a.name = $1`, [assigneeName]);
+    if(assigneeName.length==0) return [];
+    const whereClause = Object.keys(assigneeName)
+        .map((key, idx)=> `$${idx+1}`)
+        .join(",");
+    const assignee_result = await pool.query(
+        `select a.idx from assignee a where a.name in (${whereClause})`
+        , [...assigneeName]);
     if(assignee_result.rows.length===0){
         throw new HttpError(CommonError.BAD_REQUEST, "Invalid assignee");
     } // 존재하지 않는 담당자 이름
-    return assignee_result.rows[0].idx;
-}
-
-async function createTask(dto: Task): Promise<Task> {
-
-    try {
-        const assigneeIdx = await getValidAssigneeIdx(dto.assignee);
-
-        const values = [
-            dto.name,
-            dto.step,
-            assigneeIdx,
-            dto.start_date,
-            dto.end_date,
-            dto.content,
-            dto.project  // project name
-        ];
-
-        const result = await pool.query(`
-            INSERT INTO task (name,
-                              step,
-                              assignee_id,
-                              start_date,
-                              end_date,
-                              content,
-                              project_id)
-            SELECT $1,
-                   $2,
-                   $3,
-                   $4,
-                   $5,
-                   $6,
-                   p.idx
-            FROM project p
-            WHERE p.name = $7 returning *`, values);
-        return result.rows[0];
-    } catch (e: any) {
-        repositoryErrorCatcher(e);
-        return undefined as never;
+    if(assigneeName.length!==assignee_result.rows.length){
+        throw new HttpError(CommonError.BAD_REQUEST, "Invalid assignee");
     }
+    return assignee_result.rows.map((r)=>r.idx);
 }
+
+    async function createTask(dto: Task): Promise<Task> {
+
+        try {
+            const assigneeIdx:number[] = await getValidAssigneeIdx(dto.assignee);
+            if(dto.assignee?.length!==assigneeIdx.length){ // 중복 코드
+                throw new HttpError(CommonError.BAD_REQUEST, "Invalid assignee");
+            }
+
+            const values = [
+                dto.name,
+                dto.step,
+                dto.start_date,
+                dto.end_date,
+                dto.content,
+                dto.project  // project name
+            ];
+            const result1 = await pool.query(`
+                INSERT INTO task (name,
+                                step,
+                                start_date,
+                                end_date,
+                                content,
+                                project_id)
+                SELECT $1,
+                    $2,
+                    $3,
+                    $4,
+                    $5,
+                    p.idx
+                FROM project p
+                WHERE p.name = $6 returning *`, values);
+            if(result1.rows.length===0){
+                throw new HttpError(CommonError.INTERNAL_SERVER_ERROR, "task 삽입 실패 !!");
+            }
+
+            await createTaskAssigneeForTask(result1.rows[0].idx, assigneeIdx);
+            // const whereClause = Object.keys(dto.assignee)
+            //     .map((key, idx)=> `($1, $${idx+2})`)
+            //     .join(",");
+            // const result2 = await pool.query(`
+            //     INSERT INTO task_assignee(task_id, assignee_id)
+            //     VALUES ${whereClause}
+            //     RETURNING *;
+            //     `, [result1.rows[0].idx, ...dto.assignee]);
+
+            const result = {...result1, assignee:dto.assignee}
+            return result.rows[0];
+
+        } catch (e: any) {
+            repositoryErrorCatcher(e);
+            return undefined as never;
+        }
+    }
 async function updateTask(id: number, task: Task): Promise<Task> {
     try {
         if (Object.keys(task).length === 0) {
@@ -114,11 +138,13 @@ async function updateTask(id: number, task: Task): Promise<Task> {
                 setClauseParts.push(`project_id = (SELECT idx FROM project WHERE name = $${idx})`);
                 values.push(value);
             } else if (key === "assignee"){
-                await getValidAssigneeIdx(value);
-
+                const assigneeIndexes:number[] = await getValidAssigneeIdx(value);
+                await deleteTaskAssigneesForTask(id);
+                await createTaskAssigneeForTask(id, assigneeIndexes);
+                idx--;
                 // assignee name → assignee_id
-                setClauseParts.push(`assignee_id = (SELECT idx FROM assignee WHERE name = $${idx})`);
-                values.push(value);
+                // setClauseParts.push(`assignee_id = (SELECT idx FROM assignee WHERE name = $${idx})`);
+                // values.push(value);
             } else {
                 // 일반 필드
                 setClauseParts.push(`${key} = $${idx}`);
@@ -171,6 +197,60 @@ async function getAssignees(): Promise<string[]>{
     }
 }
 
+async function getAssigneesForTask(task_id?:number):Promise<string[]>{
+    try{
+        if(!task_id) throw new HttpError(CommonError.INTERNAL_SERVER_ERROR, "task_id not found!!");
+        const result = await pool.query(`
+            select
+            --     a.idx,
+                a.name
+            from
+                task_assignee t
+            join
+                assignee a
+            on
+                t.assignee_id = a.idx
+            where
+                t.task_id = $1
+            -- order by
+            --     a.idx ASC
+                `, [task_id]);
+        return result.rows.map(q=>q.name);
+    } catch(e:any){
+        repositoryErrorCatcher(e);
+        return undefined as never;
+    }
+};
+async function createTaskAssigneeForTask(task_id:number, assigneeindexes:number[]):Promise<void>{
+    try{
+        if(assigneeindexes.length==0) return;
+        const whereClause = Object.keys(assigneeindexes)
+            .map((key, idx)=> `($1, $${idx+2})`)
+            .join(",");
+
+        await pool.query(`
+            INSERT INTO task_assignee(task_id, assignee_id)
+            VALUES ${whereClause}
+            RETURNING *;
+            `, [task_id, ...assigneeindexes]);
+
+    } catch(e:any){
+        repositoryErrorCatcher(e);
+        return undefined as never;
+    }
+}
+async function deleteTaskAssigneesForTask(task_id?:number):Promise<void>{
+    try{
+        if(!task_id) throw new HttpError(CommonError.INTERNAL_SERVER_ERROR, "task_id not found!!");
+        await pool.query(`
+            delete from task_assignee
+            where task_id = $1;
+        `, [task_id]);
+    }catch(e:any){
+        repositoryErrorCatcher(e);
+        return undefined as never;
+    }
+}
 
 export default {
     getTasksByWeek,
@@ -179,29 +259,7 @@ export default {
     updateTask,
     deleteTask,
     getAssignees,
+    getAssigneesForTask,
 };
 
 
-// async function getAssignees(task_id:number):Promise<string[]>{
-//     try{
-//         const result = await pool.query(`
-//             select
-//             --     a.idx,
-//                 a.name
-//             from
-//                 task_assignee t
-//             join
-//                 assignee a
-//             on
-//                 t.assignee_id = a.idx
-//             where
-//                 t.task_id = $1
-//             -- order by
-//             --     a.idx ASC
-//                 `, [task_id]);
-//         return result.rows.map(q=>q.name);
-//     } catch(e:any){
-//         repositoryErrorCatcher(e);
-//         return undefined as never;
-//     }
-// };
